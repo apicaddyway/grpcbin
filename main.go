@@ -137,8 +137,15 @@ func main() {
 				log.Fatalf("failt to parse template: %v", err)
 			}
 			mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-				if err2 := t.Execute(w, pb.GRPCBin_serviceDesc.Methods); err != nil {
-					http.Error(w, err2.Error(), http.StatusInternalServerError)
+				if err = t.Execute(w, pb.GRPCBin_serviceDesc.Methods); err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+				}
+			})
+			mux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "image/x-icon")
+				w.Header().Set("Cache-Control", "public, max-age=7776000")
+				if _, err = fmt.Fprintln(w, "data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII="); err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
 				}
 			})
 			httpSrv.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
